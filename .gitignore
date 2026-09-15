@@ -1,0 +1,11 @@
+venv/
+backend/venv/
+frontend/node_modules/
+cifake_data/
+backend/cifake_data/
+*.zip
+__pycache__/
+*.pyc
+.DS_Store
+kaggle.json
+.env

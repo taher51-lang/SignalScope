@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-multipart
+torch
+ftfy
+regex
+tqdm
+git+https://github.com/openai/CLIP.git
+scikit-learn
+joblib
+Pillow
