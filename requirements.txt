@@ -11,3 +11,4 @@ joblib
 Pillow
 gradio
 grad-cam
+huggingface-hub==0.25.2
