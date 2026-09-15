@@ -11,8 +11,9 @@ device = "mps" if torch.backends.mps.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 model.eval()
 
-# Load trained classifier once at startup
-clf = joblib.load("model/logreg_model.joblib")
+import os
+base_dir = os.path.dirname(os.path.abspath(__file__))
+clf = joblib.load(os.path.join(base_dir, "logreg_model.joblib"))
 
 LABELS = {0: "REAL", 1: "AI-GENERATED"}
 

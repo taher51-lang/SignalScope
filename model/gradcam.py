@@ -13,7 +13,9 @@ device = "mps" if torch.backends.mps.is_available() else "cpu"
 # --- Load the fine-tuned ResNet18 ---
 resnet_model = models.resnet18(weights=None)
 resnet_model.fc = nn.Linear(resnet_model.fc.in_features, 2)
-resnet_model.load_state_dict(torch.load("model/resnet18_gradcam.pt", map_location=device))
+import os
+base_dir = os.path.dirname(os.path.abspath(__file__))
+resnet_model.load_state_dict(torch.load(os.path.join(base_dir, "resnet18_gradcam.pt"), map_location=device))
 resnet_model.to(device)
 resnet_model.eval()
 

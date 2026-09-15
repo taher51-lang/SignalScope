@@ -1,7 +1,10 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from predict import predict_image
-from gradcam import generate_gradcam
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+from model.predict import predict_image
+from model.gradcam import generate_gradcam
 
 app = FastAPI(title="SignalScope API")
 
@@ -16,7 +19,7 @@ app.add_middleware(
 def root():
     return {"status": "SignalScope API is running"}
 
-from metadata import extract_metadata
+from model.metadata import extract_metadata
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
@@ -28,7 +31,7 @@ async def predict(file: UploadFile = File(...)):
     result["heatmap"] = heatmap
     result["metadata"] = meta
     return result
-from multimodal import check_image_text_consistency
+from model.multimodal import check_image_text_consistency
 from fastapi import Form
 
 @app.post("/predict_multimodal")
@@ -39,5 +42,5 @@ async def predict_multimodal(file: UploadFile = File(...), caption: str = Form(.
     text_check = check_image_text_consistency(image_bytes, caption)
 
     return {**verdict, "heatmap": heatmap, "text_consistency": text_check}
-from metadata import extract_metadata
+from model.metadata import extract_metadata
 
