@@ -35,9 +35,8 @@ Built for SIH 2026 (Internal Hackathon), L. J. Institute of Engineering and Tech
 
 ## 2. Live Demo
 
-- **App:** `<Vercel URL here>`
-- **API:** `<Render URL here>`
-- **Demo video (3–5 min):** `<video link here>`
+- **Demo video (3–5 min):** [Watch on Loom](https://www.loom.com/share/009d337e982a40a58d078529c70f842d)
+- **Deployment:** This project is designed to be run locally for the hackathon evaluation to avoid cloud hardware limits on the PyTorch/CLIP models. An ad-hoc public URL is generated via Localtunnel during the live pitch.
 
 ---
 
