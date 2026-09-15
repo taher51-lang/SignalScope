@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import "./App.css";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://taher52-signalscope.hf.space";
 
 function App() {
   const [image, setImage] = useState(null);
@@ -95,7 +95,7 @@ function App() {
         <div className="app-logo">
           <div className="logo-mark">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2 12h4l3-9 5 18 3-9h5"/>
+              <path d="M2 12h4l3-9 5 18 3-9h5" />
             </svg>
           </div>
           <span className="logo-text">SignalScope</span>
@@ -107,7 +107,7 @@ function App() {
         <section className="hero">
           <h1>Image Authenticity Analysis</h1>
           <p>
-            Upload an image to determine if it's a real photograph or AI-generated. 
+            Upload an image to determine if it's a real photograph or AI-generated.
             Review the metadata, visual explanation, and caption consistency.
           </p>
         </section>
@@ -129,9 +129,9 @@ function App() {
           >
             <div className="dropzone-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             </div>
             <p className="dropzone-title">Click or drag image to upload</p>
@@ -238,7 +238,7 @@ function App() {
                 <div className="signals">
                   <div className="sig">
                     <div className="sig-label">Provenance & Metadata</div>
-                    
+
                     {/* C2PA Check */}
                     {result.metadata?.has_c2pa ? (
                       <div style={{ marginBottom: 12 }}>
@@ -328,7 +328,7 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          SignalScope — Developed for <a href="https://www.sih.gov.in/" target="_blank" rel="noreferrer">SIH 2026</a>. 
+          SignalScope — Developed for <a href="https://www.sih.gov.in/" target="_blank" rel="noreferrer">SIH 2026</a>.
           View the <a href="https://github.com/taher51-lang/SignalScope" target="_blank" rel="noreferrer">source code</a>.
         </p>
       </footer>
