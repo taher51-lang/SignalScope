@@ -26,11 +26,18 @@ def predict_image(image_bytes: bytes):
         embedding = embedding / embedding.norm(dim=-1, keepdim=True)
         embedding = embedding.cpu().numpy()
 
-    pred = clf.predict(embedding)[0]
     prob = clf.predict_proba(embedding)[0]
-    confidence = float(prob[pred])
+    fake_prob = prob[1]
+
+    if 0.45 <= fake_prob <= 0.55:
+        final_label = "INCONCLUSIVE"
+        confidence = float(fake_prob if fake_prob > 0.5 else 1.0 - fake_prob)
+    else:
+        pred = 1 if fake_prob > 0.55 else 0
+        final_label = LABELS[pred]
+        confidence = float(prob[pred])
 
     return {
-        "label": LABELS[int(pred)],
+        "label": final_label,
         "confidence": round(confidence, 4)
     }

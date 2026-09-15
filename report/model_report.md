@@ -8,7 +8,7 @@ Binary image classification: Real vs. AI-generated.
 Bonus tasks attempted: 
 - Module A: Faithful Explanation (Grad-CAM)
 - Module C: Robustness to Degradation
-- Module D: Provenance & Metadata (EXIF)
+- Module D: Provenance & Metadata (C2PA / Content Credentials & EXIF)
 - Module E: Multimodal (image + text consistency)
 
 ### Data & Split
@@ -22,7 +22,7 @@ Bonus tasks attempted:
 ### Model / Approach
 **Architecture:** 
 - **Backbone:** Pre-trained OpenAI CLIP (ViT-B/32) used as a frozen feature extractor. This transfer-learning approach leverages broad visual representations, which theoretically generalize better to unseen generators than a CNN trained from scratch on low-res CIFAKE images.
-- **Classifier:** A lightweight Logistic Regression model (`scikit-learn`, C=1.0, max_iter=1000) trained on the 512-dimensional CLIP embeddings.
+- **Classifier & Calibration:** A lightweight Logistic Regression model (`scikit-learn`, C=1.0, max_iter=1000) trained on the 512-dimensional CLIP embeddings. The confidence is calibrated such that predictions falling in the [0.45, 0.55] boundary return an "Inconclusive / Not Sure" label, avoiding over-claiming.
 - **Explanation (Module A):** A separate ResNet18 (ImageNet-pretrained) was fine-tuned for 3 epochs to generate Grad-CAM heatmaps, as CLIP ViT-B/32 does not naturally expose spatial feature maps for Grad-CAM.
 
 ### Metric & Result (on 4,000 image held-out test split)

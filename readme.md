@@ -15,7 +15,7 @@ Built for SIH 2026 (Internal Hackathon), L. J. Institute of Engineering and Tech
 | **Bonus A — Faithful Explanation** | ✅ Built | Grad-CAM heatmap overlay showing which image regions most influenced the "AI-generated" verdict, toggled inline in the UI. |
 | Bonus B — Generator Attribution | ❌ Not built | — |
 | **Bonus C — Robustness to Degradation** | ✅ Built | Standalone evaluation script that re-tests the classifier under JPEG re-compression (quality 50, 20) and resizing (0.5x, 0.25x), reporting AUC/accuracy at each degradation level. See Section 5. |
-| **Bonus D — Provenance & Metadata** | ✅ Built | EXIF metadata extraction (camera make/model, timestamp) returned with every prediction and shown in the UI. Combined with the visual verdict, not used standalone. |
+| **Bonus D — Provenance & Metadata** | ✅ Built | Fast byte-level C2PA / Content Credentials detection and EXIF metadata extraction (camera make/model) returned with every prediction and shown in the UI. Combined with the visual verdict. |
 | **Bonus E — Multimodal (image + text)** | ✅ Built | Optional caption input; CLIP text encoder computes image–caption cosine similarity as a consistency signal, served via a separate `/predict_multimodal` endpoint and shown in the UI. |
 | Bonus F — Real-Time / Deployable | ✅ Partially | Deployed as a live drag-and-drop web app (see Live Demo below). |
 | Bonus G — Active Defence Analysis | ❌ Not built | — |
@@ -49,11 +49,11 @@ FastAPI backend  ──►  CLIP ViT-B/32 (frozen) ──► LogisticRegression 
 JSON response { label, confidence, heatmap, metadata, text_consistency? } ──► rendered in UI
 ```
 
-**Verdict model:** Images are embedded using OpenAI's pretrained CLIP (ViT-B/32) image encoder — no fine-tuning of CLIP itself. A `scikit-learn` `LogisticRegression` classifier is trained on top of these 512-dimensional embeddings to predict real vs. AI-generated. This transfer-learning approach lets a lightweight classifier leverage CLIP's broad, general-purpose visual representations, which generalize better to generators unseen during training than features tuned to one dataset's artifacts.
+**Verdict model:** Images are embedded using OpenAI's pretrained CLIP (ViT-B/32) image encoder — no fine-tuning of CLIP itself. A `scikit-learn` `LogisticRegression` classifier is trained on top of these 512-dimensional embeddings to predict real vs. AI-generated. The model uses a **calibrated confidence threshold**: if the confidence falls between 0.45 and 0.55, it returns an "Inconclusive / Not Sure" label to avoid over-claiming on borderline images. This transfer-learning approach lets a lightweight classifier leverage CLIP's broad, general-purpose visual representations, which generalize better to generators unseen during training.
 
 **Explanation model:** A separate ResNet18 (ImageNet-pretrained, fine-tuned on the same data) drives Grad-CAM, since Grad-CAM requires the spatial feature maps of a convolutional network — CLIP's ViT backbone doesn't expose these directly. This model is used only to generate the heatmap, not the final verdict.
 
-**Metadata check (Module D):** EXIF tags (camera make/model, capture timestamp) are read directly from the uploaded file with PIL. Presence of consistent camera metadata is weak supporting evidence of a real photograph; absence is not proof of AI generation, since many legitimate sources (screenshots, messaging apps, social platforms) strip EXIF on their own. Reported as supporting context alongside the visual verdict, never as a standalone claim.
+**Metadata check (Module D):** Fast byte-level scanning detects cryptographic C2PA / Content Credentials signatures (JUMBF). Additionally, EXIF tags (camera make/model) are read directly from the uploaded file with PIL. Presence of consistent camera metadata is weak supporting evidence of a real photograph; absence is not proof of AI generation. Reported as supporting context alongside the visual verdict, never as a standalone claim.
 
 **Multimodal consistency (Module E):** When a caption is supplied, CLIP's text encoder embeds it into the same vector space as the image, and cosine similarity between the two embeddings is reported as a consistency score. This flags cases where an image and its accompanying claim/caption don't semantically match.
 
