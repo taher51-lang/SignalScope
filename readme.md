@@ -1,3 +1,14 @@
+---
+title: SignalScope
+emoji: 🔍
+colorFrom: indigo
+colorTo: blue
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+---
+
 # SignalScope
 **Telling Real From Synthetic in the Age of Generative Media**
 
