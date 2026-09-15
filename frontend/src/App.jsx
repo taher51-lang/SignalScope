@@ -10,6 +10,7 @@ function App() {
   const [error, setError] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [caption, setCaption] = useState("");
 
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) {
@@ -38,11 +39,14 @@ function App() {
     const formData = new FormData();
     formData.append("file", image);
 
+    const endpoint = caption.trim()
+      ? "http://localhost:8000/predict_multimodal"
+      : "http://localhost:8000/predict";
+
+    if (caption.trim()) formData.append("caption", caption.trim());
+
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(endpoint, { method: "POST", body: formData });
       if (!res.ok) throw new Error("Prediction failed. Please try again.");
       const data = await res.json();
       setResult(data);
@@ -52,7 +56,6 @@ function App() {
       setLoading(false);
     }
   };
-
   const reset = () => {
     setImage(null);
     setPreview(null);
@@ -106,21 +109,19 @@ function App() {
                 <div className="flex justify-center gap-2 mb-4">
                   <button
                     onClick={() => setShowHeatmap(false)}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                      !showHeatmap
-                        ? "bg-gray-900 text-white border-gray-900"
-                        : "bg-white text-gray-600 border-gray-300"
-                    }`}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${!showHeatmap
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : "bg-white text-gray-600 border-gray-300"
+                      }`}
                   >
                     Original
                   </button>
                   <button
                     onClick={() => setShowHeatmap(true)}
-                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                      showHeatmap
-                        ? "bg-gray-900 text-white border-gray-900"
-                        : "bg-white text-gray-600 border-gray-300"
-                    }`}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${showHeatmap
+                      ? "bg-gray-900 text-white border-gray-900"
+                      : "bg-white text-gray-600 border-gray-300"
+                      }`}
                   >
                     Explanation Heatmap
                   </button>
@@ -129,39 +130,45 @@ function App() {
             </div>
 
             {!result && (
-              <div className="flex gap-3">
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
-                >
-                  {loading ? "Analyzing..." : "Check Authenticity"}
-                </button>
-                <button
-                  onClick={reset}
-                  className="px-4 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50"
-                >
-                  Clear
-                </button>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Optional: add a caption to check image-text consistency"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+                  >
+                    {loading ? "Analyzing..." : "Check Authenticity"}
+                  </button>
+                  <button
+                    onClick={reset}
+                    className="px-4 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50"
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
             )}
-
             {result && (
               <div className="space-y-4">
                 <div
-                  className={`rounded-xl p-5 border ${
-                    result.label === "AI-GENERATED"
-                      ? "bg-amber-50 border-amber-200"
-                      : "bg-green-50 border-green-200"
-                  }`}
+                  className={`rounded-xl p-5 border ${result.label === "AI-GENERATED"
+                    ? "bg-amber-50 border-amber-200"
+                    : "bg-green-50 border-green-200"
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                        result.label === "AI-GENERATED"
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
+                      className={`text-sm font-semibold px-3 py-1 rounded-full ${result.label === "AI-GENERATED"
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-green-100 text-green-800"
+                        }`}
                     >
                       {result.label === "AI-GENERATED" ? "Likely AI-generated" : "Likely Real"}
                     </span>
@@ -172,12 +179,24 @@ function App() {
 
                   <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        result.label === "AI-GENERATED" ? "bg-amber-500" : "bg-green-500"
-                      }`}
+                      className={`h-full rounded-full ${result.label === "AI-GENERATED" ? "bg-amber-500" : "bg-green-500"
+                        }`}
                       style={{ width: `${result.confidence * 100}%` }}
                     />
                   </div>
+                  {result.metadata && (
+                    <div className="text-xs text-gray-500 border-t border-gray-200 pt-3 mt-3">
+                      <p className="font-medium text-gray-700 mb-1">Metadata check</p>
+                      <p>{result.metadata.has_exif ? `Camera: ${result.metadata.camera_make || "Unknown"} ${result.metadata.camera_model || ""}` : "No EXIF metadata found."}</p>
+                    </div>
+                  )}
+
+                  {result.text_consistency && (
+                    <div className="text-xs text-gray-500 border-t border-gray-200 pt-3 mt-3">
+                      <p className="font-medium text-gray-700 mb-1">Caption consistency</p>
+                      <p>Score: {result.text_consistency.consistency_score} — {result.text_consistency.likely_consistent ? "Likely consistent" : "Possibly mismatched"}</p>
+                    </div>
+                  )}
 
                   <p className="text-xs text-gray-500 mt-3">
                     This is a probabilistic assessment, not a definitive claim. Toggle above to see which regions influenced this verdict.
