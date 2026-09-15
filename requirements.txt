@@ -10,4 +10,4 @@ scikit-learn
 joblib
 Pillow
 gradio
-pytorch_grad_cam
+grad-cam
